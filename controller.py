@@ -9,28 +9,15 @@ import twitter_get_url
 import sys
 import datetime
 from PyQt5.QtCore import QTimer
-import traceback
+from tools import output_err
+#user_data ->user_data_path
 
-
-def output_err(e):
-    error_class = e.__class__.__name__  # 取得錯誤類型
-    detail = e.args[0]  # 取得詳細內容
-    cl, exc, tb = sys.exc_info()  # 取得Call Stack
-    lastCallStack = traceback.extract_tb(tb)[-1]  # 取得Call Stack的最後一筆資料
-    fileName = lastCallStack[0]  # 取得發生的檔案名稱
-    lineNum = lastCallStack[1]  # 取得發生的行號
-    funcName = lastCallStack[2]  # 取得發生的函數名稱
-    errMsg = "File \"{}\", line {}, in {}: [{}] {}".format(
-        fileName, lineNum, funcName, error_class, detail)
-    print(errMsg)
-    return (errMsg)
 
 
 class MainWindow_controller(QtWidgets.QMainWindow):
-    user_data = 'None'
+    user_data_path = 'None'
     tweet_id = None
     data = ''
-    # user_name = ''
     last_url = ''
     user_name = ''
     download_path = ''
@@ -39,24 +26,20 @@ class MainWindow_controller(QtWidgets.QMainWindow):
     cookie = ''
     agent = ''
     recorder = ['']
-    speed = [
-        "自動",]
-
+    # speed = [
+    #     "自動",]
     show_recorder = []
-    state = 'YES'
-
     def __init__(self):
         super().__init__()  # in python3, super(Class, self).xxx = super().xxx
         self.ui = Ui_MainWindow()
-
         self.ui.setupUi(self)
         self.thread1 = None  # 初始化執行緒
 
     def setup_control(self):
-        self.user_data = os.getenv('APPDATA')+r'\twitter_download/'
-        if not os.path.exists(self.user_data):
-            os.mkdir(self.user_data)
-        self.ui.download_speed.addItems(self.speed)
+        self.user_data_path = os.path.join(os.getenv('APPDATA'), 'twitter_download')
+        if not os.path.exists(self.user_data_path):
+            os.mkdir(self.user_data_path)
+        # self.ui.download_speed.addItems(self.speed)
         self.get_user_json()
         self.load_user_data()
         self.ui.use_data.currentIndexChanged.connect(self.load_user_data)
@@ -70,27 +53,27 @@ class MainWindow_controller(QtWidgets.QMainWindow):
             self.exe_path = os.path.dirname(__file__)  # .py程序路径
 
     def the_first_use(self):
-        if os.path.isfile(self.user_data+'data.json'):
+        if os.path.isfile(self.user_data_path+'data.json'):
             time = (datetime.date.today()-datetime.timedelta(days=1)
                     ).strftime("%Y_%m_%d.json")
-            os.rename(self.user_data+'data.json', self.user_data+time)
-            with open(self.user_data+"json_recorder.txt", 'a+') as f:
-                f.write(self.user_data+time+'\n')
+            os.rename(self.user_data_path+'data.json', self.user_data_path+time)
+            with open(self.user_data_path+"json_recorder.txt", 'a+') as f:
+                f.write(self.user_data_path+time+'\n')
 
     def get_user_json(self):
         try:
-            data_list = (glob.glob(os.path.join(self.user_data, "*.json")))
-            with open(self.user_data+"json_recorder.txt", 'w') as file:
+            data_list = (glob.glob(os.path.join(self.user_data_path, "*.json")))
+            with open(self.user_data_path+"json_recorder.txt", 'w') as file:
                 for i in data_list:
                     path = i.rsplit('\\', 1)
                     file.write(path[0]+'/'+path[1]+'\n')
         except:
             pass
         try:
-            with open(self.user_data+"json_recorder.txt", 'r') as file:
+            with open(self.user_data_path+"json_recorder.txt", 'r') as file:
                 lines = [line.rstrip() for line in file]
             lines = list(dict.fromkeys(lines))
-            with open(self.user_data+"json_recorder.txt", 'w') as file:
+            with open(self.user_data_path+"json_recorder.txt", 'w') as file:
                 for i in lines:
                     file.write(i+'\n')
             self.recorder = lines[::-1]
@@ -100,26 +83,7 @@ class MainWindow_controller(QtWidgets.QMainWindow):
         except:
             pass
 
-    def save_info(self):
-        jsonObject = {
-            
-            # "password":  self.ui.password.text(),
-            "last_time_url": self.ui.last_url.text(),
-            "previousLink": self.previousLink,
-            "usr_path": self.ui.download_path.text(),
-            "download_thread_num": self.ui.download_thread_num.value(),
-            "exe_path": self.exe_path,
-            "tweet_id": self.tweet_id,
-            "cookie": self.ui.cookie.text(),
-        }
-        user_data = os.getenv('APPDATA')+r'\twitter_download/'
-        fileName = user_data+datetime.date.today().strftime("%Y_%m_%d.json")
 
-        with open(user_data+"json_recorder.txt", 'a+') as f:
-            f.write(fileName+'\n')
-        file = open(fileName, "w")
-        json.dump(jsonObject, file, indent=4)
-        file.close()
 
     def load_user_data(self):
         try:
@@ -198,10 +162,10 @@ class MainWindow_controller(QtWidgets.QMainWindow):
             self.thread1.start()
 
     def update(self):
-        user_data = os.getenv('APPDATA')+r'\twitter_download/'
-        if not os.path.exists(user_data):
-            os.mkdir(user_data)
-        output = user_data+r'/check.json'
+        self.user_data = os.path.join(os.getenv('APPDATA'), 'twitter_download')
+        if not os.path.exists(self.user_data):
+            os.mkdir(self.user_data)
+        output = self.user_data+r'/check.json'
         # url='https://drive.google.com/u/1/uc?id=1uGppiPKA6TF0Zxz3SjCnAp_5_0YsPXYF&export=download'
         import requests
         url = 'https://drive.google.com/uc?id=1uGppiPKA6TF0Zxz3SjCnAp_5_0YsPXYF'

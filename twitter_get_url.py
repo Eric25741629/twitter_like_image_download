@@ -14,7 +14,7 @@ import datetime
 requests.packages.urllib3.disable_warnings()
 
 
-class download_thread(QThread):
+class download_thread(QThread, twitter_url.twitter_link_regex):
     _progressbar = pyqtSignal(int, int)
     _finish = pyqtSignal(int)
     _info_box = pyqtSignal(str, str)
@@ -34,20 +34,6 @@ class download_thread(QThread):
     user_data = os.getenv('APPDATA')+r'\twitter_download/'
     tweet_id = ''
     headers = twitter_url.headers
-    p_tw_link_text = re.compile(r'https://t.co/[\dA-Za-z]+$')
-    p_csrf_token = re.compile(r'ct0=(.+?)(?:;|$)')
-    pProxy = re.compile(r'.+?:(\d+)$')
-    p_user_id = re.compile(r'"rest_id":"(\d+)"')
-    p_twt_id = re.compile(r'conversation_id_str":"(\d+)')
-    p_user_link = re.compile(r'https://twitter.com/([^/]+?)(?:/media)?$')
-    p_twt_link = re.compile(r'https://twitter.com/(.+?)/status/(\d+)')
-    get_pic_link = re.compile(r'''(https://pbs.twimg.com/media/(.+?))['"]''')
-    p_gif_link = re.compile(
-        r'(https://video.twimg.com/tweet_video/(.+?\.mp4))')
-    p_vid_link = re.compile(
-        r'(https://video.twimg.com/ext_tw_video/(\d+)/(?:pu|pr)/vid/(\d+x\d+)/(.+?\.mp4))')
-    p_text_content = re.compile(r'''full_text['"]:\s?['"](.+?)['"]''')
-    p_cursor = re.compile(r'value":"(.+?)"')
 
     def __init__(self, state='YES'):
         super(download_thread, self).__init__()
@@ -57,8 +43,8 @@ class download_thread(QThread):
 
     def save_info(self):
         jsonObject = {
-            "username": self.user_name,
-            "email": self.address,
+            # "username": self.user_name,
+            # "email": self.address,
             "password":  self.password,
             "last_time_url": self.last_url,
             "previousLink": self.previousLink,
@@ -84,8 +70,8 @@ class download_thread(QThread):
             if os.path.isfile(fileName):
                 with open(fileName) as f:
                     data = json.load(f)
-                self.address = data['email']
-                self.user_name = data['username']
+                # self.address = data['email']
+                # self.user_name = data['username']
                 self.last_url = data['last_time_url']
                 self.last_time_url = self.last_url
                 self.password = data['password']

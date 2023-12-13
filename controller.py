@@ -30,7 +30,7 @@ class MainWindow_controller(QtWidgets.QMainWindow):
     user_data = 'None'
     tweet_id = None
     data = ''
-    user_name = ''
+    # user_name = ''
     last_url = ''
     user_name = ''
     download_path = ''
@@ -103,7 +103,7 @@ class MainWindow_controller(QtWidgets.QMainWindow):
     def save_info(self):
         jsonObject = {
             
-            "password":  self.ui.password.text(),
+            # "password":  self.ui.password.text(),
             "last_time_url": self.ui.last_url.text(),
             "previousLink": self.previousLink,
             "usr_path": self.ui.download_path.text(),
@@ -227,17 +227,10 @@ class MainWindow_controller(QtWidgets.QMainWindow):
             return
         # print(str(version_info))
         if (new_version > 2.0):
-            # print("有新的版本"+str(new_version))
-            version_info = version_info.replace("\\n", "\n")
-            version_info = version_info.replace("\n", "<br>")
+            # import requests
 
-            # ask=tkinter.messagebox.askquestion(title='更新', message="版本"+str(new_version)+version_state+"\n"+version_info)
-            msgBox = QMessageBox()
-            msgBox.setTextFormat(Qt.RichText)
-            msgBox.setText(
-                "{} <br><a href='https://drive.google.com/file/d/1ujpmREZXaNJy_QcZQgBllefSx_wG3HiQ/view?usp=share_link'>按我跳轉至下載頁面\n</a>.".format(version_info))
-            msgBox.setWindowTitle("檢測到新的版本")
-            msgBox.exec()
+            response = requests.get("https://api.github.com/repos/[用户名]/[仓库名]/releases/latest")
+            print(response.json()["tag_name"])
 
     def progressbar_updata(self, step, max):
         if (step == 1):

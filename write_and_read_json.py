@@ -27,23 +27,25 @@ class user_data(data_format):
             print("No user data")
             self.data_num = 0
         else:
+            # 將user_json倒序排列
+            self.user_json = self.user_json[::-1]
             self.data_num = len(self.user_json)
             self.read_info()
             self.show_recorder = [i.split('.')[0] for i in self.user_json]
 
     def check_file(self):
-        if not os.path.isdir(self.user_data_path+"user_data"):
-            os.mkdir(self.user_data_path+"user_data")
+        if not os.path.isdir(self.user_data_path+"/user_data"):
+            os.mkdir(self.user_data_path+"/user_data")
             return []
         else:
-            return os.listdir(self.user_data_path+"user_data")
+            return os.listdir(self.user_data_path+"/user_data")
 
-    def read_info(self, num=-1):
+    def read_info(self, num=0):
         # 讀取最新的json檔案
         if len(self.user_json) == 0:
             return False
         else:
-            file = open(self.user_data_path+"user_data/" +
+            file = open(self.user_data_path+"/user_data/" +
                         self.user_json[num], "r")
             jsonObject = json.load(file)
             file.close()
@@ -66,10 +68,10 @@ class user_data(data_format):
             "cookie": self.cookie,
             "download_thread_num": self.download_thread_num,
         }
-        fileName = self.user_data_path+"user_data/" + \
+        fileName = self.user_data_path+"/user_data/" + \
             datetime.date.today().strftime("%Y_%m_%d.json")
-        with open(self.user_data_path+"json_recorder.txt", 'a+') as f:
-            f.write(fileName+'\n')
+        # with open(self.user_data_path+"json_recorder.txt", 'a+') as f:
+        #     f.write(fileName+'\n')
         file = open(fileName, "w")
         json.dump(jsonObject, file, indent=4)
         file.close()

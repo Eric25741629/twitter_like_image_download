@@ -13,7 +13,7 @@ from tools import output_err
 from write_and_read_json import user_data
 
 
-class MainWindow_controller(QtWidgets.QMainWindow, user_data):
+class MainWindow_controller(QtWidgets.QMainWindow):
     tweet_id = None
     data = ''
     exe_path = ''
@@ -25,38 +25,38 @@ class MainWindow_controller(QtWidgets.QMainWindow, user_data):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.thread1 = None  # 初始化執行緒
-        # self.usr_data = user_data()
+        self.usr_data = user_data()
 
     def setup_control(self):
         # pass
-        if not self.read_info():
+        if not self.usr_data.read_info():
             self.show_info('錯誤', '讀取設定檔失敗，請重新設定')
         else:
             self.put_info()
-            self.ui.use_data.addItems(self.show_recorder)
+            self.ui.use_data.addItems(self.usr_data.show_recorder)
         self.ui.use_data.currentIndexChanged.connect(self.changeinfo)
         self.ui.use_data.setCurrentIndex(0)
         # self.get_exe_path()
 
     def changeinfo(self):
-        self.read_info(self.ui.use_data.currentIndex())
+        self.usr_data.read_info(self.ui.use_data.currentIndex())
         self.put_info()
 
     def update_info(self):
-        self.download_path = self.ui.download_path.text()
-        self.download_thread_num = self.ui.download_thread_num.value()
-        self.cookie = self.ui.cookie.text()
-        self.auto_update = self.ui.auto_update.isChecked()
-        self.last_time_url = self.ui.last_url.text()
-        self.usr_name = self.ui.user_name.text()
+        self.usr_data.download_path = self.ui.download_path.text()
+        self.usr_data.download_thread_num = self.ui.download_thread_num.value()
+        self.usr_data.cookie = self.ui.cookie.text()
+        # self.usr_data.auto_update = self.ui.auto_update.isChecked()
+        self.usr_data.last_time_url = self.ui.last_url.text()
+        self.usr_data.usr_name = self.ui.user_name.text()
 
     def put_info(self):
-        self.ui.download_path.setText(self.download_path)
-        self.ui.download_thread_num.setValue(self.download_thread_num)
-        self.ui.cookie.setText(self.cookie)
+        self.ui.download_path.setText(self.usr_data.download_path)
+        self.ui.download_thread_num.setValue(self.usr_data.download_thread_num)
+        self.ui.cookie.setText(self.usr_data.cookie)
         # self.ui.auto_update.setChecked(self.auto_update)
-        self.ui.user_name.setText(self.usr_name)
-        self.ui.last_url.setText(self.last_time_url)
+        self.ui.user_name.setText(self.usr_data.usr_name)
+        self.ui.last_url.setText(self.usr_data.last_time_url)
 
     @QtCore.pyqtSlot()
     def on_change_path_clicked(self):
@@ -65,31 +65,23 @@ class MainWindow_controller(QtWidgets.QMainWindow, user_data):
                                                        "./")                 # start path
         # print(folder_path)
         self.ui.download_path.setText(folder_path)
+        self.usr_data.download_path = folder_path
 
     @QtCore.pyqtSlot()
     def on_start_clicked(self):
         self.update_info()
-        self.save_info()
+        self.usr_data.save_info()
+        self.set_ui_enabled(False)
         # while (1):
         #     pass
     #     self.ui.progressBar.setRange(0, 0)       # 兩個數值設定相同
     #     self.ui.progressBar.setValue(50)
-    #     self.set_disabled()
-    #     self.save_info()
-    #     if self.state == 'NO':
-    #         self.thread1 = twitter_get_url.download_thread(state='NO')
-    #         self.thread1._progressbar.connect(self.progressbar_updata)
-    #         self.thread1._finish.connect(self.thefinish)
-    #         self.thread1._info_box.connect(self.show_info)
-    #         self.thread1.start()
-    #     else:
-
-    #         self.thread1 = twitter_get_url.download_thread()
-    #         self.thread1._progressbar.connect(self.progressbar_updata)
-    #         self.thread1._finish.connect(self.thefinish)
-    #         self.thread1._info_box.connect(self.show_info)
-    #         self.thread1._err_box.connect(self.show_error_close)
-    #         self.thread1.start()
+#         self.thread1 = twitter_get_url.download_thread()
+#         self.thread1._progressbar.connect(self.progressbar_updata)
+#         self.thread1._finish.connect(self.thefinish)
+#         self.thread1._info_box.connect(self.show_info)
+#         self.thread1._err_box.connect(self.show_error_close)
+#         self.thread1.start()
 
     def progressbar_updata(self, step, max):
         if (step == 1):
@@ -116,7 +108,6 @@ class MainWindow_controller(QtWidgets.QMainWindow, user_data):
     def show_info(self, title, message):
         QMessageBox.information(self, title, message)
         self.ui.progressBar.setRange(0, 1)
-        self.set_enable()
 
     # def show_error_close(self, title, message, second):
     #     msgBox = QMessageBox()
@@ -130,9 +121,10 @@ class MainWindow_controller(QtWidgets.QMainWindow, user_data):
     #     # 顯示提示框
     #     msgBox.exec_()
 
-    # @QtCore.pyqtSlot()
-    # def on_clear_url_clicked(self):
-    #     self.previousLink = 0
+    @QtCore.pyqtSlot()
+    def on_clear_url_clicked(self):
+        self.usr_data.previousLink = 0
+
     def set_ui_enabled(self, enabled):
         self.ui.last_url.setEnabled(enabled)
         self.ui.user_name.setEnabled(enabled)

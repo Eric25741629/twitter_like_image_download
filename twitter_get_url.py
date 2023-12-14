@@ -10,7 +10,7 @@ from random import random
 import requests
 import datetime
 # import glob
-
+from write_and_read_json import user_data
 requests.packages.urllib3.disable_warnings()
 
 
@@ -19,80 +19,15 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
     _finish = pyqtSignal(int)
     _info_box = pyqtSignal(str, str)
     _err_box = pyqtSignal(str, str, int)
-    address = ''
-    user_name = ''
-    last_url = ''
-    previousLink = ''
-    password = ''
-    download_path = ''
-    download_speed = ''
-    download_thread_num = 0
-    exe_path = ''
     exist_img = set()
     urls = 0
-    driver = None
-    user_data = os.getenv('APPDATA')+r'\twitter_download/'
+    usr_path = os.getenv('APPDATA')+r'\twitter_download/'
     tweet_id = ''
     headers = twitter_url.headers
 
-    def __init__(self, state='YES'):
+    def __init__(self, usrdata: user_data):
         super(download_thread, self).__init__()
-        self.read()
-        self.onstate = state
-        print(self.onstate)
-
-    # def save_info(self):
-    #     jsonObject = {
-    #         # "username": self.user_name,
-    #         # "email": self.address,
-    #         "password":  self.password,
-    #         "last_time_url": self.last_url,
-    #         "previousLink": self.previousLink,
-    #         "usr_path": self.download_path,
-    #         "download_thread_num": self.download_thread_num,
-    #         "exe_path": self.exe_path,
-    #         "tweet_id": self.tweet_id,
-    #         "cookie": self.headers['cookie'],
-    #         "agent": self.headers['User-Agent'],
-    #     }
-    #     user_data = os.getenv('APPDATA')+r'\twitter_download/'
-    #     fileName = user_data+datetime.date.today().strftime("%Y_%m_%d.json")
-    #     with open(user_data+"json_recorder.txt", 'a+') as f:
-    #         f.write(fileName+'\n')
-    #     file = open(fileName, "w")
-    #     json.dump(jsonObject, file, indent=4)
-    #     file.close()
-
-    # def read(self):
-    #     try:
-    #         user_data = os.getenv('APPDATA')+r'\twitter_download/'
-    #         fileName = user_data+datetime.date.today().strftime("%Y_%m_%d.json")
-    #         if os.path.isfile(fileName):
-    #             with open(fileName) as f:
-    #                 data = json.load(f)
-    #             # self.address = data['email']
-    #             # self.user_name = data['username']
-    #             self.last_url = data['last_time_url']
-    #             self.last_time_url = self.last_url
-    #             self.password = data['password']
-    #             self.download_path = data['usr_path']
-    #             self.exe_path = data['exe_path']
-    #             self.download_thread_num = int(data['download_thread_num'])
-    #             self.previousLink = data['previousLink']
-    #             try:
-    #                 self.tweet_id = data['tweet_id']
-    #             except:
-    #                 self.tweet_id = None
-    #             try:
-    #                 self.headers['cookie'] = data['cookie']
-    #             except:
-    #                 self._info_box.emit('錯誤', '沒有取得cookies 請重新輸入')
-    #             self.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.41'
-    #             self.headers['x-csrf-token'] = self.p_csrf_token.findall(
-    #                 self.headers['cookie'])[0]
-    #     except Exception as e:
-    #         print(e)
-    #         pass
+        self.usrdata = usrdata
 
     def get_token(self):
         # print(json.loads(requests.post(twitter_url.url_token, headers=self.headers).text))

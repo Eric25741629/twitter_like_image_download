@@ -65,7 +65,7 @@ class user_data(data_format):
             "previousLink": self.previousLink,
             "download_path": self.download_path,
             "tweet_id": self.tweet_id,
-            "cookie": self.cookie,
+            "cookie": self.cookie.replace('\n', ''),
             "download_thread_num": self.download_thread_num,
         }
         fileName = self.user_data_path+"/user_data/" + \

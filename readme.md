@@ -8,8 +8,10 @@ This Python application allows users to download images from Twitter that they h
 
 ## HOW TO USE
 - Please make sure you have Python installed.
+  
   `pip install -r requirement.txt`
-  run main.py
+  
+  `python main.py`
 
 
 ## Features

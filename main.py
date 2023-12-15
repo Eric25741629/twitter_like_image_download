@@ -2,7 +2,6 @@ from PyQt5 import QtWidgets
 from controller import MainWindow_controller
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from time import sleep
 import sys
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

@@ -1,3 +1,2 @@
-#Twitter Like Image Downloader
-
+# Twitter Like Image Downloader
 An app in Python that downloads images from Twitter that you've liked.

@@ -74,14 +74,14 @@ class MainWindow_controller(QtWidgets.QMainWindow):
         self.set_ui_enabled(False)
         # while (1):
         #     pass
-    #     self.ui.progressBar.setRange(0, 0)       # 兩個數值設定相同
-    #     self.ui.progressBar.setValue(50)
-#         self.thread1 = twitter_get_url.download_thread()
-#         self.thread1._progressbar.connect(self.progressbar_updata)
-#         self.thread1._finish.connect(self.thefinish)
-#         self.thread1._info_box.connect(self.show_info)
-#         self.thread1._err_box.connect(self.show_error_close)
-#         self.thread1.start()
+        self.ui.progressBar.setRange(0, 0)       # 兩個數值設定相同
+        self.ui.progressBar.setValue(50)
+        self.thread1 = twitter_get_url.download_thread(usrdata=self.usr_data)
+        self.thread1._progressbar.connect(self.progressbar_updata)
+        self.thread1._finish.connect(self.thefinish)
+        self.thread1._info_box.connect(self.show_info)
+        self.thread1._err_box.connect(self.show_error_close)
+        self.thread1.start()
 
     def progressbar_updata(self, step, max):
         if (step == 1):
@@ -96,30 +96,29 @@ class MainWindow_controller(QtWidgets.QMainWindow):
             self.ui.progressBar.setValue(0)
             self.ui.progressBar.setFormat("正在抓取喜歡的貼文..."+str(max-1))
 
-    # def thefinish(self, state):
-    #     if state == 1:
-    #         QMessageBox.information(self, '完成', '下載成功')
-    #         self.set_enable()
-    #     elif state == -1:
-    #         QMessageBox.information(self, '錯誤', '沒有需要下載的圖片')
-    #         self.set_enable()
-    #         self.ui.progressBar.setRange(0, 1)
+    def thefinish(self, state):
+        if state == 1:
+            QMessageBox.information(self, '完成', '下載成功')
+        elif state == -1:
+            QMessageBox.information(self, '錯誤', '沒有需要下載的圖片')
+            self.ui.progressBar.setRange(0, 1)
+        self.set_ui_enabled(True)
 
     def show_info(self, title, message):
         QMessageBox.information(self, title, message)
         self.ui.progressBar.setRange(0, 1)
 
-    # def show_error_close(self, title, message, second):
-    #     msgBox = QMessageBox()
-    #     msgBox.setText(message)
-    #     msgBox.setWindowTitle(title)
-    #     # 設置關閉定時器
-    #     timer = QTimer(msgBox)
-    #     timer.setSingleShot(True)
-    #     timer.timeout.connect(msgBox.close)
-    #     timer.start(second)  # 5000 毫秒 = 5 秒
-    #     # 顯示提示框
-    #     msgBox.exec_()
+    def show_error_close(self, title, message, second):
+        msgBox = QMessageBox()
+        msgBox.setText(message)
+        msgBox.setWindowTitle(title)
+        # 設置關閉定時器
+        timer = QTimer(msgBox)
+        timer.setSingleShot(True)
+        timer.timeout.connect(msgBox.close)
+        timer.start(second)  # 5000 毫秒 = 5 秒
+        # 顯示提示框
+        msgBox.exec_()
 
     @QtCore.pyqtSlot()
     def on_clear_url_clicked(self):

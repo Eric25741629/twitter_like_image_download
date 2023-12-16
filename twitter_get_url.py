@@ -155,9 +155,9 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
     def run(self):
         all_img_urls = self.get_all_img_url()
         if all_img_urls != []:
-            # self.exist_img = set(self.get_image_names(
-            #     self.usrdata.download_path+'/'))
-            self.exist_img = set()
+            self.exist_img = set(self.get_image_names(
+                self.usrdata.download_path+'/'))
+            # self.exist_img = set()
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.usrdata.download_thread_num) as self.executor:
                 func = partial(self.download_twitter_img,
                                self.usrdata.download_path+'/')
@@ -225,4 +225,4 @@ if __name__ == '__main__':
     path = os.getenv('APPDATA')+r'\twitter_download/'
     usr_data = user_data()
     usr_data.read_info(0)
-    download_thread(usr_data).get_all_img_url()
+    download_thread(usr_data).run()

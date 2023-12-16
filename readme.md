@@ -1,6 +1,6 @@
 # Twitter Like Image Downloader(Does not require the use of the Twitter API.)
 
-An app in Python that downloads images from Twitter that you've liked.
+An app in Python that downloads images from Twitter that you've liked.(Now just can download one person.)
 
 ## Overview
 
@@ -17,10 +17,7 @@ This Python application allows users to download images from Twitter that they h
 
 ## Features
 
+- More language support.
 - Download images liked by multiple Twitter users.
 - Download various types of content such as videos and text.
 - Support for custom filenames
-- More language support.
-
-
-

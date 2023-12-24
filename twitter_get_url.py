@@ -12,25 +12,41 @@ import datetime
 # import glob
 from write_and_read_json import user_data
 requests.packages.urllib3.disable_warnings()
+def find_urls(obj, url):
+    urls_found = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if isinstance(v, (dict, list)):
+                urls_found.extend(find_urls(v, url))
+            elif url in str(v) :
+                if v not in urls_found:
+                    urls_found.append(v)
+    elif isinstance(obj, list):
+        for item in obj:
+            urls_found.extend(find_urls(item, url))
+    return urls_found
 
-
-class get_twitter_info(twitter_url.twitter_link_regex):
+class get_twitter_info():
     def __init__(self, headers):
         self.headers = headers
 
     def get_token(self):
         try:
+            
+            print(requests.post(
+                twitter_url.url_token, headers=self.headers).text)            
             token = json.loads(requests.post(
                 twitter_url.url_token, headers=self.headers).text)['guest_token']
+            
             return token
             # headers['x-guest-token'] = token
-        except:
+        except Exception as e:
+            print(e)
             return 'error'
 
     def get_user_info(self, username, get_count_num=False):
-        url = twitter_url.screename_url.format(username)
+        url = twitter_url.screename_url.format(username.replace('\n', ''))
         userjson = requests.get(url, headers=self.headers)
-        print(userjson)
         userjson = userjson.json()
         if get_count_num:
             return (userjson['data']['user']['result']['rest_id'], userjson['data']['user']['result']['legacy']['favourites_count'])
@@ -42,13 +58,13 @@ class get_twitter_info(twitter_url.twitter_link_regex):
         else:
             url = twitter_url.like_url.format(user_id, cursor)
         response = requests.get(url, headers=self.headers)
-        get_media_url = list(dict.fromkeys(
-            self.get_pic_link.findall(response.text)))
-        twitter_ids = set(self.p_twt_id.findall(response.text))
+        json_res=response.json()
+        get_media_url = list(dict.fromkeys(find_urls(json_res, 'https://pbs.twimg.com/media/')))
+        # twitter_ids = set(self.p_twt_id.findall(response.text))
         last_cursor = cursor
         cursor = response.json()['data']['user']['result']['timeline_v2']['timeline']['instructions'][0]['entries'][-1]['content']['value'].replace(
             '+', "%2B").replace('/', "%2F").replace('=', '')
-        return twitter_ids, get_media_url, cursor, last_cursor
+        return  get_media_url, cursor, last_cursor
 
     def error_test(self, response):
         '''如果錯誤 回傳0 '''
@@ -69,7 +85,7 @@ class get_twitter_info(twitter_url.twitter_link_regex):
         return self.error_test(response)
 
 
-class download_thread(QThread, twitter_url.twitter_link_regex):
+class download_thread(QThread):
     _progressbar = pyqtSignal(int, int)
     _finish = pyqtSignal(int)
     _info_box = pyqtSignal(str, str)
@@ -79,7 +95,7 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
     usr_path = os.getenv('APPDATA')+r'\twitter_download/'
     tweet_id = ''
     headers = twitter_url.headers
-
+    
     def __init__(self, usrdata: user_data):
         super(download_thread, self).__init__()
         self.usrdata = usrdata
@@ -87,20 +103,26 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
         self.usr_name = self.usrdata.usr_name.replace("@", '')
         self.request_twitter = get_twitter_info(self.headers,)
         self.last_time_url = self.usrdata.last_time_url
-
+        ct0_value = None
+        cookie_items = self.headers['cookie'].split("; ")
+        for item in cookie_items:
+            if item.startswith("ct0="):
+                ct0_value = item.split("ct0=")[1]
+                break
+        #找出cookie中的ct0
+        self.headers['x-csrf-token'] = ct0_value
     def add_url(self, get_media_url, media_url=[]):
-        file_dict = {item[1]: item for item in get_media_url}
-        if self.last_time_url not in file_dict:
-            get_media_url = [url for url, filename in get_media_url]
+        if self.last_time_url not in get_media_url:
+            get_media_url = [url for url in get_media_url]
             media_url = media_url + \
                 [i for i in get_media_url if i not in media_url]
             return media_url, True
         else:
             for i in get_media_url:
-                if i[1] == self.last_time_url:
+                if i == self.last_time_url:
+                    print('找到上次的連結')
                     return media_url, False
-                media_url.append(i[0])
-            print('找到上次的連結')
+                media_url.append(i)
             return media_url, False
 
     def get_image_names(self, path: str):
@@ -114,7 +136,9 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
     def get_all_img_url(self):
 
         token = self.request_twitter.get_token()
+        print(token)
         if token == 'error':
+
             self._info_box.emit('錯誤', '沒有取得token 請重新輸入cookies')
             return
         self.headers['x-guest-token'] = token
@@ -126,7 +150,7 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
             print('沒有上次的連結')
             self.last_time_url = ''
         else:
-            self.last_time_url = re.search("https://pbs.twimg.com/media/(.*)(?:.*|\?.*)", self.usrdata.last_time_url.replace(
+            self.last_time_url ='https://pbs.twimg.com/media/'+ re.search("https://pbs.twimg.com/media/(.*)(?:.*|\?.*)", self.usrdata.last_time_url.replace(
                 "?format=", '.').replace(":orig", '').split('&name')[0]).group(1)  # 將上次的連結提取出圖片id
         if self.request_twitter.test_cookies(twitter_url.first_like_url.format(user_id)):
             # log.write_log('info', 'cookies is available')
@@ -135,12 +159,11 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
             self._info_box.emit('錯誤', 'cookies is not available')
             # log.write_log('info', 'cookies is available')
             return
-        twitter_ids, get_media_url, cursor, last_cursor = self.request_twitter.get_tweetids_and_cursor(
-            user_id=user_id)
+        get_media_url, cursor, last_cursor = self.request_twitter.get_tweetids_and_cursor(user_id=user_id)
         img_urls, continue_ = self.add_url(get_media_url)
         all_img_urls = img_urls
         while continue_:
-            twitter_ids, get_media_url, cursor, last_cursor = self.request_twitter.get_tweetids_and_cursor(
+            get_media_url, cursor, last_cursor = self.request_twitter.get_tweetids_and_cursor(
                 user_id=user_id, cursor=cursor)
             img_urls, continue_ = self.add_url(get_media_url)
             all_img_urls += img_urls
@@ -154,6 +177,7 @@ class download_thread(QThread, twitter_url.twitter_link_regex):
 
     def run(self):
         all_img_urls = self.get_all_img_url()
+        # print(len(all_img_urls))
         if all_img_urls != []:
             self.exist_img = set(self.get_image_names(
                 self.usrdata.download_path+'/'))
@@ -225,4 +249,5 @@ if __name__ == '__main__':
     path = os.getenv('APPDATA')+r'\twitter_download/'
     usr_data = user_data()
     usr_data.read_info(0)
+    # download_thread()
     download_thread(usr_data).run()

@@ -2,21 +2,7 @@
 import re
 
 
-class twitter_link_regex:
-    p_tw_link_text = re.compile(r'https://t.co/[\dA-Za-z]+$')
-    p_csrf_token = re.compile(r'ct0=(.+?)(?:;|$)')
-    pProxy = re.compile(r'.+?:(\d+)$')
-    p_user_id = re.compile(r'"rest_id":"(\d+)"')
-    p_twt_id = re.compile(r'conversation_id_str":"(\d+)')
-    p_user_link = re.compile(r'https://twitter.com/([^/]+?)(?:/media)?$')
-    p_twt_link = re.compile(r'https://twitter.com/(.+?)/status/(\d+)')
-    get_pic_link = re.compile(r'''(https://pbs.twimg.com/media/(.+?))['"]''')
-    p_gif_link = re.compile(
-        r'(https://video.twimg.com/tweet_video/(.+?\.mp4))')
-    p_vid_link = re.compile(
-        r'(https://video.twimg.com/ext_tw_video/(\d+)/(?:pu|pr)/vid/(\d+x\d+)/(.+?\.mp4))')
-    p_text_content = re.compile(r'''full_text['"]:\s?['"](.+?)['"]''')
-    p_cursor = re.compile(r'value":"(.+?)"')
+
 
 
 "https://twitter.com/i/api/2/search/adaptive.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&send_error_codes=true&simple_quoted_tweet=true&q={}&count=20&query_source=typed_query&pc=1&spelling_corrections=1&ext=mediaStats%2ChighlightedLabel%2CvoiceInfo"
@@ -29,7 +15,7 @@ headers = {
     'x-guest-token': '',
     'x-twitter-client-language': 'zh-cn',
     'x-twitter-active-user': 'yes',
-    'x-csrf-token': '0cc8d130d01f9a969eb5ecae620b29f2d029af9a1cdf87855b96a981c505a73ab12333258271afedfd03dd07b256e521bbe2b4a2866ae2de5a8bef937e2dbc63605faeb96aac8b2692aab4e4e0c3a6df',
+    'x-csrf-token': '',
     'sec-Fetch-Dest': 'document',
     'sec-Fetch-Mode': 'navigate',
     'sec-Fetch-Site': 'same-origin',

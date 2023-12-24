@@ -8,7 +8,7 @@ class data_format:
     previousLink: str = ''
     usr_path: str
     usr_name: str
-    tweet_id: str
+    tweet_id: str = None
     cookie: str
     download_path: str
     data_num: int
@@ -52,7 +52,7 @@ class user_data(data_format):
             self.usr_name = jsonObject["usr_name"]
             self.last_time_url = jsonObject["last_time_url"]
             self.previousLink = jsonObject["previousLink"]
-            self.tweet_id = jsonObject["tweet_id"]
+            # self.tweet_id = jsonObject["tweet_id"]
             self.cookie = jsonObject["cookie"]
             self.download_path = jsonObject["download_path"]
             self.download_thread_num = jsonObject["download_thread_num"]
@@ -64,7 +64,7 @@ class user_data(data_format):
             "last_time_url": self.last_time_url,
             "previousLink": self.previousLink,
             "download_path": self.download_path,
-            "tweet_id": self.tweet_id,
+            # "tweet_id": self.tweet_id,
             "cookie": self.cookie.replace('\n', ''),
             "download_thread_num": self.download_thread_num,
         }

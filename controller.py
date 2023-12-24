@@ -14,7 +14,6 @@ from write_and_read_json import user_data
 
 
 class MainWindow_controller(QtWidgets.QMainWindow):
-    tweet_id = None
     data = ''
     exe_path = ''
     recorder = ['']

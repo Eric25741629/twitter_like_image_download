@@ -14,7 +14,7 @@
 
 然後在qtdesigner -> windowicon->theme裡貼入路徑"  :img/logo.ico    "
 
-pyinstaller main.py -n twitter -D -w --icon D:\downloads\twitter_like_donwnload\logo.ico
+pyinstaller main.py -n twitter -D -w --icon C:\python\twitter_like_image_download\logo.ico
 
 打包用nsis
 HM NIS Edit
